@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookshelfScanner</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        .logo-icon {
+            color: #5cb85c;
+            margin-right: 0.5rem;
+        }
+        
+        nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: #555;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: #5cb85c;
+        }
+        
+        .sign-in-btn {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .sign-in-btn:hover {
+            background-color: #4cae4c;
+        }
+        
+        /* Main Content Styles */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        /* Upload Section */
+        .upload-container {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .upload-container.active {
+            border-color: #5cb85c;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-btn {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-btn:hover {
+            background-color: #4cae4c;
+        }
+        
+        .upload-message {
+            color: #777;
+            margin-top: 0.5rem;
+        }
+        
+        .preview-container {
+            position: relative;
+        }
+        
+        .preview-img {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .clear-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .scan-btn {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .scan-btn:hover {
+            background-color: #4cae4c;
+        }
+        
+        .scan-btn:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* Search Section */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        
+        .search-btn {
+            background-color: #eee;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        /* Books Grid */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .book-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-cover-container {
+            position: relative;
+        }
+        
+        .book-cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+        
+        .book-genre {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .book-info {
+            padding: 1rem;
+        }
+        
+        .book-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .book-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        
+        .book-rating {
+            display: flex;
+            align-items: center;
+        }
+        
+        .rating-star {
+            color: #ffc107;
+            margin-right: 3px;
+        }
+        
+        .book-details {
+            color: #5cb85c;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .arrow-icon {
+            margin-left: 5px;
+        }
+        
+        /* Footer Styles */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .footer-copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: #aaa;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            nav {
+                margin: 1rem 0;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .footer-top {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        .loading div {
+            position: absolute;
+            border: 4px solid #5cb85c;
+            opacity: 1;
+            border-radius: 50%;
+            animation: loading 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        }
+        .loading div:nth-child(2) {
+            animation-delay: -0.5s;
+        }
+        @keyframes loading {
+            0% {
+                top: 36px;
+                left: 36px;
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                top: 0px;
+                left: 0px;
+                width: 72px;
+                height: 72px;
+                opacity: 0;
+            }
+        }
+
+        /* Hidden Elements */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                BookshelfScanner
+            </div>
+            <nav>
+                <a href="#">Authors</a>
+                <a href="#">Genres</a>
+                <a href="#">Top Picks</a>
+            </nav>
+            <button class="sign-in-btn">Log in</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="hero">
+            <h1>Explore books with BookshelfScanner</h1>
+            <p>Discover over 1,480,086 books waiting for you!</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload-container" class="upload-container">
+            <div id="upload-prompt">
+                <div class="upload-icon">📤</div>
+                <button id="upload-btn" class="upload-btn">Upload Image</button>
+                <p class="upload-message">or drag and drop an image of your bookshelf</p>
+            </div>
+            
+            <div id="preview-container" class="preview-container hidden">
+                <button id="clear-btn" class="clear-btn">✕</button>
+                <img id="preview-img" src="" alt="Bookshelf preview" class="preview-img">
+                <button id="scan-btn" class="scan-btn">Scan Books</button>
+            </div>
+
+            <div id="scanning-indicator" class="hidden">
+                <div class="loading"><div></div><div></div></div>
+                <p>Scanning your bookshelf...</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <div class="results-header">
+                <h2 id="results-title" class="results-title">Detected Books (0)</h2>
+                <div class="search-container">
+                    <input type="text" placeholder="Search books..." class="search-input" id="search-input">
+                    <button class="search-btn" id="search-btn">🔍</button>
+                </div>
+            </div>
+            
+            <div id="books-grid" class="books-grid">
+                <!-- Book cards will be generated here by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <span>📚</span> BookshelfScanner
+                </div>
+                <p class="footer-copyright">© 2025 BookshelfScanner. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Support</a>
+                <a href="#">Help Center</a>
+                <a href="#">User Manual</a>
+                <a href="#">Get in touch</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample book data that would come from API after scanning
+        const sampleBooks = [
+            { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=687&auto=format&fit=crop", genre: "Fiction", rating: 4.5 },
+            { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", cover: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=688&auto=format&fit=crop", genre: "Fiction", rating: 4.8 },
+            { id: 3, title: "1984", author: "George Orwell", cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=687&auto=format&fit=crop", genre: "Sci-Fi", rating: 4.6 },
+            { id: 4, title: "Pride and Prejudice", author: "Jane Austen", cover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=687&auto=format&fit=crop", genre: "Romance", rating: 4.7 },
+            { id: 5, title: "The Hobbit", author: "J.R.R. Tolkien", cover: "https://images.unsplash.com/photo-1629992101753-56d196c8aabb?q=80&w=690&auto=format&fit=crop", genre: "Fantasy", rating: 4.9 },
+            { id: 6, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", cover: "https://images.unsplash.com/photo-1618666012174-83b441c0bc76?q=80&w=687&auto=format&fit=crop", genre: "Fantasy", rating: 4.8 },
+            { id: 7, title: "The Catcher in the Rye", author: "J.D. Salinger", cover: "https://images.unsplash.com/photo-1531928351158-2f736078e0a1?q=80&w=687&auto=format&fit=crop", genre: "Fiction", rating: 4.3 },
+            { id: 8, title: "Lord of the Flies", author: "William Golding", cover: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?q=80&w=687&auto=format&fit=crop", genre: "Fiction", rating: 4.1 }
+        ];
+
+        // DOM Elements
+        const uploadContainer = document.getElementById('upload-container');
+        const uploadPrompt = document.getElementById('upload-prompt');
+        const uploadBtn = document.getElementById('upload-btn');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const clearBtn = document.getElementById('clear-btn');
+        const scanBtn = document.getElementById('scan-btn');
+        const scanningIndicator = document.getElementById('scanning-indicator');
+        const resultsSection = document.getElementById('results-section');
+        const resultsTitle = document.getElementById('results-title');
+        const booksGrid = document.getElementById('books-grid');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+
+        let currentBooks = [];
+
+        // Event Listeners
+        uploadBtn.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = handleFileSelect;
+            fileInput.click();
+        });
+
+        clearBtn.addEventListener('click', clearPreview);
+        scanBtn.addEventListener('click', scanBooks);
+        searchBtn.addEventListener('click', searchBooks);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchBooks();
+            }
+        });
+
+        // Drag and Drop
+        uploadContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadContainer.classList.add('active');
+        });
+
+        uploadContainer.addEventListener('dragleave', () => {
+            uploadContainer.classList.remove('active');
+        });
+
+        uploadContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadContainer.classList.remove('active');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Functions
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    uploadPrompt.classList.add('hidden');
+                    previewContainer.classList.remove('hidden');
+                    uploadContainer.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select an image file.');
+            }
+        }
+
+        function clearPreview() {
+            previewImg.src = '';
+            previewContainer.classList.add('hidden');
+            uploadPrompt.classList.remove('hidden');
+            uploadContainer.classList.remove('active');
+            resultsSection.classList.add('hidden');
+            uploadContainer.style.marginBottom = '2rem'; // Reset margin
+            scanBtn.classList.remove('hidden'); // Make sure scan button is visible for next upload
+            currentBooks = [];
+        }
+
+        function scanBooks() {
+            // Hide only the scan button, not the entire preview
+            scanBtn.classList.add('hidden');
+            scanningIndicator.classList.remove('hidden');
+            
+            // Simulate scanning process
+            setTimeout(() => {
+                scanningIndicator.classList.add('hidden');
+                currentBooks = [...sampleBooks];
+                displayBooks(currentBooks);
+                resultsSection.classList.remove('hidden');
+                
+                // Keep the image visible, just add some space between image and results
+                uploadContainer.style.marginBottom = '3rem';
+            }, 2000);
+        }
+
+        function displayBooks(books) {
+            booksGrid.innerHTML = '';
+            resultsTitle.textContent = `Detected Books (${books.length})`;
+            
+            books.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                
+                bookCard.innerHTML = `
+                    <div class="book-cover-container">
+                        <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                        <div class="book-genre">${book.genre}</div>
+                        <button class="favorite-btn">❤️</button>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">${book.author}</p>
+                        <div class="book-meta">
+                            <div class="book-rating">
+                                <span class="rating-star">★</span>
+                                <span>${book.rating.toFixed(1)}</span>
+                            </div>
+                            <a href="#" class="book-details">
+                                Details <span class="arrow-icon">→</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                booksGrid.appendChild(bookCard);
+                
+                // Toggle favorite
+                const favBtn = bookCard.querySelector('.favorite-btn');
+                favBtn.addEventListener('click', function() {
+                    this.textContent = this.textContent === '❤️' ? '♡' : '❤️';
+                });
+            });
+        }
+
+        function searchBooks() {
+            const query = searchInput.value.toLowerCase();
+            
+            if (query === '') {
+                displayBooks(currentBooks);
+                return;
+            }
+            
+            const filteredBooks = currentBooks.filter(book => 
+                book.title.toLowerCase().includes(query) || 
+                book.author.toLowerCase().includes(query) ||
+                book.genre.toLowerCase().includes(query)
+            );
+            
+            displayBooks(filteredBooks);
+        }
+    </script>
+</body>
+</html>
